@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Project Documentation</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 24px; color: #222; }
+      .actions { position: sticky; top: 0; background: #fff; padding: 12px 0; }
+      button { padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; background: #f8f8f8; cursor: pointer; }
+      .card { max-width: 900px; margin: 0 auto; }
+      pre { white-space: pre-wrap; word-wrap: break-word; background: #f6f8fa; padding: 16px; border-radius: 8px; border: 1px solid #eee; }
+      @media print {
+        .actions { display: none; }
+        pre { border: none; background: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="actions">
+        <button onclick="window.print()">Print / Save as PDF</button>
+      </div>
+      <h1>Loan Default Prediction – Documentation</h1>
+      <pre>{{ readme }}</pre>
+    </div>
+  </body>
+  </html>
+
+
+

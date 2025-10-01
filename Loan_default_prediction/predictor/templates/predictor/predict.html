@@ -1,0 +1,151 @@
+<!doctype html>
+<html>
+  <head>
+    {% load static %}
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ZWMB Loan Default Predictor</title>
+    <style>
+      :root {
+        /* ZWMB-like green theme */
+        --zwmb-primary: #2e7d32; /* primary green */
+        --zwmb-primary-600: #1b5e20; /* darker green */
+        --zwmb-accent: #66bb6a; /* light green accent */
+        --zwmb-bg: #f4f9f4; /* subtle green-tinted background */
+        --zwmb-text: #1f2a1f;
+      }
+      body { font-family: Arial, sans-serif; margin: 0; background: var(--zwmb-bg); color: var(--zwmb-text); }
+      header { background: linear-gradient(90deg, var(--zwmb-primary), var(--zwmb-primary-600)); color: white; padding: 12px 24px; }
+      .brand { max-width: 980px; margin: 0 auto; display: flex; align-items: center; gap: 16px; justify-content: space-between; }
+      .brand .logo { width: 40px; height: 40px; border-radius: 8px; background: white; display: inline-block; }
+      .brand h1 { font-size: 18px; margin: 0; }
+      nav a { color: #fff; text-decoration: none; margin-left: 16px; font-size: 14px; }
+      nav a:hover { text-decoration: underline; }
+      .container { max-width: 980px; margin: 24px auto; padding: 0 16px; }
+      .card { background: white; padding: 24px; border: 1px solid #e5f2e5; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+      input[type="number"], select { width: 100%; padding: 10px; font-size: 14px; border: 1px solid #ddd; border-radius: 6px; background: #fff; }
+      label { font-size: 13px; color: #4a4155; display: flex; flex-direction: column; gap: 6px; }
+      button { padding: 12px 16px; font-size: 14px; margin-top: 12px; background: var(--zwmb-primary); color: white; border: none; border-radius: 8px; cursor: pointer; }
+      button:hover { background: var(--zwmb-primary-600); }
+      .error { color: #b00020; margin-top: 12px; }
+      .result { background: #f0fff4; border: 1px solid #b2dfbd; padding: 12px; margin-top: 16px; border-radius: 6px; }
+      .hint { color: #666; font-size: 12px; }
+      footer { text-align: center; font-size: 12px; color: #7a7384; padding: 16px; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="brand">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <img src="{% static 'predictor/logo.png' %}" alt="ZWMB Logo" class="logo" style="object-fit: cover;" />
+          <h1>Zimbabwe Women’s Microfinance Bank • Loan Default Predictor</h1>
+        </div>
+      </div>
+    </header>
+    <div class="container">
+    <div class="card">
+      <h2 style="margin-top:0">Check Loan Default Risk</h2>
+      <form method="post">
+        {% csrf_token %}
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <label>Gender
+            <select name="gender">
+              <option value="1">Male</option>
+              <option value="0">Female</option>
+            </select>
+          </label>
+
+          <label>Married
+            <select name="married">
+              <option value="1">Yes</option>
+              <option value="0">No</option>
+            </select>
+          </label>
+
+          <label>Dependents
+            <select name="dependents">
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3+</option>
+            </select>
+          </label>
+
+          <label>Education
+            <select name="education">
+              <option value="1">Graduate</option>
+              <option value="0">Not Graduate</option>
+            </select>
+          </label>
+
+          <label>Self Employed
+            <select name="self_employed">
+              <option value="1">Yes</option>
+              <option value="0">No</option>
+            </select>
+          </label>
+
+          <label>Applicant Income
+            <input type="number" name="applicant_income" step="0.01" min="0" required />
+          </label>
+
+          <label>Coapplicant Income
+            <input type="number" name="coapplicant_income" step="0.01" min="0" required />
+          </label>
+
+          <label>Loan Amount
+            <input type="number" name="loan_amount" step="0.01" min="0" required />
+          </label>
+
+          <label>Loan Amount Term (months)
+            <input type="number" name="loan_amount_term" step="1" min="0" required />
+          </label>
+
+          <label>Credit History
+            <select name="credit_history">
+              <option value="1">Has history (1)</option>
+              <option value="0">No history (0)</option>
+            </select>
+          </label>
+
+          <label>Property Area
+            <select name="property_area">
+              <option value="0">Rural</option>
+              <option value="1">Semiurban</option>
+              <option value="2">Urban</option>
+            </select>
+          </label>
+        </div>
+
+        <button type="submit">Predict</button>
+      </form>
+
+      {% if error %}
+        <div class="error">{{ error }}</div>
+      {% endif %}
+
+      {% if prediction %}
+        <div class="result">
+          <div><strong>Decision:</strong> {{ prediction.label_text }}</div>
+          <div class="hint">(Raw label: {{ prediction.label }})</div>
+          {% if prediction.probability %}
+            <div><strong>Confidence:</strong> {{ prediction.probability|floatformat:3 }}</div>
+          {% endif %}
+          {% if prediction.reasons and prediction.reasons|length > 0 %}
+            <div style="margin-top:10px;"><strong>Top reasons:</strong></div>
+            <ul class="hint">
+              {% for r in prediction.reasons %}
+                <li>{{ r }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+    </div>
+    <footer>Creating a women with power</footer>
+  </body>
+  </html>
+
+
